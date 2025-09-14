@@ -17,9 +17,6 @@ pipeline {
                 sh "mvn clean install -DskipTests"
             }
         }
-
-
-
         stage("Run Code Scanning") {
             steps {
                 script {
