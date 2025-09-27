@@ -17,6 +17,8 @@ pipeline {
                 sh "mvn clean install -DskipTests"
             }
         }
+
+
         stage("Run Code Scanning") {
             steps {
                 script {
@@ -35,6 +37,7 @@ pipeline {
                 }
             }
         }
+
         stage ("Check Quality Gate") {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -42,6 +45,7 @@ pipeline {
                 }
             }
         }
+
         stage("Upload Artifacts") {
             steps {
                 nexusArtifactUploader(
@@ -71,7 +75,9 @@ pipeline {
                     sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER} ."
                 }
             }
-        }              
+        }
+        
+
         stage ("Push App Image") {
             steps {
               
@@ -83,20 +89,20 @@ pipeline {
                 }
             }
         }
-        stage ("Deploy to cluster docker-desktop") {
+
+        stage ("Deploy to cluster dev-kt-k8s") {
             steps {
                 withKubeConfig(credentialsId: 'kubeconfig-dev-kt-k8s') {
                     sh "kubectl apply -f k8s/namespace.yaml"
                     sh "kubectl apply -f k8s/mysql/"
 
                     sh """
-                        sed -i 's#docker.io/ash425/business-mgmt-app:[0-9]\\+#docker.io/ash425/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
+                        sed -i 's#docker.io/vsiraparapu/business-mgmt-app:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
                         kubectl apply -f k8s/app/
                     """
                 }
             }
         }
-        
     }
-}   
-    
+}
+

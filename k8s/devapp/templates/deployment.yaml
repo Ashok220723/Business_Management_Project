@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devapp.fullname" . }}-business-app
+  labels:
+  {{- include "devapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.businessApp.replicas }}
+  selector:
+    matchLabels:
+      app: business-app
+    {{- include "devapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: business-app
+      {{- include "devapp.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: SERVER_PORT
+          value: {{ quote .Values.businessApp.businessApp.env.serverPort }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "devapp.fullname" . }}-app-config
+        - secretRef:
+            name: mysql-secret
+        image: {{ .Values.businessApp.businessApp.image.repository }}:{{ .Values.businessApp.businessApp.image.tag
+          | default .Chart.AppVersion }}
+        livenessProbe:
+          httpGet:
+            path: /home
+            port: 2330
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        name: business-app
+        ports:
+        - containerPort: 2330
+        readinessProbe:
+          httpGet:
+            path: /home
+            port: 2330
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources: {}

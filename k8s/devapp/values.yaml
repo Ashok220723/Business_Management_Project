@@ -1,0 +1,18 @@
+appConfig:
+  springDatasourceUrl: jdbc:mysql://mysql:3306/businessproject
+  springDatasourceUsername: root
+  springJpaPropertiesHibernateDialect: org.hibernate.dialect.MySQL8Dialect
+businessApp:
+  businessApp:
+    env:
+      serverPort: "2330"
+    image:
+      repository: docker.io/vsiraparapu/business-mgmt-app
+      tag: "27"
+  ports:
+  - nodePort: 32191
+    port: 9191
+    targetPort: 2330
+  replicas: 2
+  type: NodePort
+kubernetesClusterDomain: cluster.local
