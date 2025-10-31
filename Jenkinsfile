@@ -65,45 +65,46 @@ pipeline {
                 )
             }
         }
-    }
-}
+    
 
 
-//         stage ("Build App Image") {
-//             steps {
-//                 script {
+
+        stage ("Build App Image") {
+            steps {
+                script {
                 
-//                     // Build Docker image
-//                     sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER} ."
-//                 }
-//             }
-//         }
+                    // Build Docker image
+                    sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                }
+            }
+        }
         
 
-//         stage ("Push App Image") {
-//             steps {
+        stage ("Push App Image") {
+            steps {
               
-//                 withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-//                     sh """
-//                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-//                        docker push ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER}
-//                     """
-//                 }
-//             }
-//         }
+                withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                    sh """
+                       echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                       docker push ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER}
+                    """
+                }
+            }
+        }
 
-//         stage ("Deploy to cluster dev-kt-k8s") {
-//             steps {
-//                 withKubeConfig(credentialsId: 'kubeconfig-dev-kt-k8s') {
-//                     sh "kubectl apply -f k8s/namespace.yaml"
-//                     sh "kubectl apply -f k8s/mysql/"
+        stage ("Deploy to cluster dev-kt-k8s") {
+            steps {
+                withKubeConfig(credentialsId: 'kubeconfig-dev-kt-k8s') {
+                    sh "kubectl apply -f k8s/namespace.yaml"
+                    sh "kubectl apply -f k8s/mysql/"
 
-//                     sh """
-//                         sed -i 's#docker.io/ash:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
-//                         kubectl apply -f k8s/app/
-//                     """
-//                 }
-//             }
-//         
-//     
-// 
+                    sh """
+                        sed -i 's#docker.io/ash:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
+                        kubectl apply -f k8s/app/
+                    """
+                }
+            }
+        }
+    }
+}
+    
