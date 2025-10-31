@@ -81,7 +81,7 @@ pipeline {
         stage ("Push App Image") {
             steps {
               
-                withCredentials([usernamePassword(credentialsId: 'docker-jenkins-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
                     sh """
                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                        docker push ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER}
@@ -97,7 +97,7 @@ pipeline {
                     sh "kubectl apply -f k8s/mysql/"
 
                     sh """
-                        sed -i 's#docker.io/vsiraparapu/business-mgmt-app:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
+                        sed -i 's#docker.io/ash:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
                         kubectl apply -f k8s/app/
                     """
                 }
