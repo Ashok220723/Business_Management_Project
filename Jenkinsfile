@@ -95,7 +95,7 @@ pipeline {
         stage ("Deploy to cluster dev-kt-k8s") {
             steps {
                 withKubeConfig(credentialsId:'minikube-kubeconfig') {
-                    sh  "kubectl get pods --all-namespace"
+                    sh  "kubectl get pods --all-namespaces"
                     // sh "kubectl apply -f k8s/namespace.yaml"
                     // sh "kubectl apply -f k8s/mysql/"
 
