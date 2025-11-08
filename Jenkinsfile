@@ -92,23 +92,24 @@ pipeline {
             }
         }
 
-        stage('List Pods from All Namespaces') {
+        stage('Install kubectl') {
             steps {
-                script {
-                    // Use Jenkins Kubernetes CLI plugin with your kubeconfig credential
-                    withKubeConfig(credentialsId: 'minikube-kubeconfig') {
-                        sh '''
-                            echo "Current Kubernetes context:"
-                            kubectl config current-context
-                            echo ""
-                            echo "Listing all pods from all namespaces:"
-                            kubectl get pods --all-namespaces -o wide
-                        '''
-                    }
+                sh '''
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    chmod +x kubectl
+                    sudo mv kubectl /usr/local/bin/
+                '''
+            }
+        }
+
+        stage('List Pods') {
+            steps {
+                withKubeConfig(credentialsId: 'minikube-kubeconfig') {
+                    sh 'kubectl get pods --all-namespaces -o wide'
                 }
             }
         }
-   
+
     }
 }
     
