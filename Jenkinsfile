@@ -92,24 +92,18 @@ pipeline {
             }
         }
 
-        stage('Install kubectl') {
+        stage ("Deploy to cluster dev-kt-k8s") {
             steps {
-                sh '''
-                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                    chmod +x kubectl
-                    sudo mv kubectl /usr/local/bin/
-                '''
-            }
-        }
+                withKubeConfig(credentialsId:'minikube-kubeconfig') {
+                    sh "kubectl apply -f k8s/namespace.yaml"
+                    sh "kubectl apply -f k8s/mysql/"
 
-        stage('List Pods') {
-            steps {
-                withKubeConfig(credentialsId: 'minikube-kubeconfig') {
-                    sh 'kubectl get pods --all-namespaces -o wide'
+                    sh """
+                        sed -i 's#docker.io/ash:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
+                        kubectl apply -f k8s/app/
+                    """
                 }
             }
         }
-
     }
 }
-    
