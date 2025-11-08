@@ -92,20 +92,23 @@ pipeline {
             }
         }
 
-        stage ("Deploy to cluster dev-kt-k8s") {
+        stage('List Pods from All Namespaces') {
             steps {
-                withKubeConfig(credentialsId:'minikube-kubeconfig') {
-                    sh  "kubectl get pods --all-namespaces"
-                    // sh "kubectl apply -f k8s/namespace.yaml"
-                    // sh "kubectl apply -f k8s/mysql/"
-
-                    // sh """
-                    //     sed -i 's#docker.io/ash:[0-9]\\+#docker.io/vsiraparapu/business-mgmt-app:${BUILD_NUMBER}#' k8s/app/deployment.yaml
-                    //     kubectl apply -f k8s/app/
-                    // """
+                script {
+                    // Use Jenkins Kubernetes CLI plugin with your kubeconfig credential
+                    withKubeConfig(credentialsId: 'minikube-kubeconfig') {
+                        sh '''
+                            echo "Current Kubernetes context:"
+                            kubectl config current-context
+                            echo ""
+                            echo "Listing all pods from all namespaces:"
+                            kubectl get pods --all-namespaces -o wide
+                        '''
+                    }
                 }
             }
         }
+   
     }
 }
     
